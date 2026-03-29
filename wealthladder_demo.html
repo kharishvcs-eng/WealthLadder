@@ -10,7 +10,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
 .app{display:flex;flex-direction:column;height:100vh}
-.top{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:1px solid rgba(255,255,255,.06);background:var(--bg2);flex-shrink:0}
+.top{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.06);background:var(--bg2);flex-shrink:0;flex-wrap:wrap;gap:6px}
 .brand{font-family:var(--mono);font-size:15px;font-weight:700}.brand em{color:var(--buy);font-style:normal}
 .scr{flex:1;overflow-y:auto;padding:24px 32px}
 .narr{background:var(--bg3);border:.5px solid rgba(79,141,255,.15);border-radius:10px;padding:14px 20px;margin-bottom:16px;font-size:14px;line-height:1.85;color:#85B7EB}
@@ -38,8 +38,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .wn{background:rgba(255,179,0,.05);border:.5px solid rgba(255,179,0,.18);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--open);margin-top:10px}
 .dn{background:rgba(255,61,90,.05);border:.5px solid rgba(255,61,90,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--sell);margin-top:10px}
 .lb{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-.ctrls{display:flex;align-items:center;gap:10px;padding:12px 24px;border-top:1px solid rgba(255,255,255,.06);background:var(--bg2);flex-shrink:0}
-.cb{padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer}.cb:disabled{opacity:.3;cursor:not-allowed}
+.ctrls{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);background:var(--bg2);flex-shrink:0}
+.cb{padding:10px 22px;border-radius:8px;border:none;font-size:14px;font-weight:500;cursor:pointer;min-height:44px}.cb:disabled{opacity:.3;cursor:not-allowed}
 .cp{background:var(--dim);color:var(--text)}.cn{background:var(--accent);color:#fff}
 .ti{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center}
 .ti h1{font-size:38px;font-weight:700;letter-spacing:2px;margin-bottom:6px}.ti h1 em{color:var(--buy);font-style:normal}
@@ -53,13 +53,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 @keyframes pulser{0%,100%{box-shadow:0 0 4px rgba(255,61,90,.3)}50%{box-shadow:0 0 16px rgba(255,61,90,.7)}}.plsr{animation:pulser 1.2s infinite}
 .vt{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer}.vt input{accent-color:var(--buy)}
 .page-tag{display:inline-flex;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.06em;background:rgba(79,141,255,.08);color:var(--accent);border:.5px solid rgba(79,141,255,.15);margin-bottom:10px}
+@media(max-width:640px){
+.top{padding:8px 12px}
+.top .brand{font-size:13px;width:100%}
+.top .brand span{display:none}
+.voice-row{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.scr{padding:16px 14px}
+.ctrls{padding:12px 12px 24px;gap:10px}
+.cb{padding:12px 28px;font-size:15px;min-height:48px;flex:1}
+.kpi-s{flex-wrap:wrap}.kpi{min-width:45%;flex:1 1 45%}
+.tbl{font-size:11px}.tbl th,.tbl td{padding:5px 6px}
+.narr{font-size:12px;padding:10px 14px}
+.sig{padding:10px 12px}
+.ti h1{font-size:28px}.ti .tg{font-size:11px}
+.pos{flex-wrap:wrap;gap:4px;font-size:11px}
+}
 </style>
 </head>
 <body>
 <div class="app">
 <div class="top">
   <div class="brand">WEALTH<em>.</em>LADDER <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:8px;">Complete Trading Day Demo</span></div>
-  <div style="display:flex;align-items:center;gap:16px;">
+  <div class="voice-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <label class="vt"><input type="checkbox" id="vOn" checked> Voice</label>
     <select id="vSel" style="background:var(--dim);color:var(--text);border:.5px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;font-family:var(--sans);max-width:200px;cursor:pointer"><option value="">Loading voices...</option></select>
     <label class="vt" style="gap:4px"><span style="font-size:10px">Speed</span><input type="range" id="vSpd" min="0.6" max="1.4" step="0.05" value="0.95" style="width:60px;accent-color:var(--buy)"><span id="vSpdLbl" style="font-size:10px;min-width:28px">0.95</span></label>
@@ -69,8 +84,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 </div>
 <div style="flex:1;overflow:hidden"><div class="scr" id="scr"></div></div>
 <div class="ctrls">
-  <div style="flex:1"></div>
-  <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:60px;text-align:right" id="sl">1/25</span>
+  <span style="font-family:var(--mono);font-size:12px;color:var(--muted);min-width:50px;text-align:center" id="sl">1/25</span>
   <button class="cb cp" id="bp" onclick="P()">Prev</button>
   <button class="cb cn" id="bn" onclick="N()">Next</button>
 </div>
