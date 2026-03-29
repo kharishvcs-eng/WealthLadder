@@ -39,9 +39,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .dn{background:rgba(255,61,90,.05);border:.5px solid rgba(255,61,90,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--sell);margin-top:10px}
 .lb{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
 .ctrls{display:flex;align-items:center;gap:10px;padding:12px 24px;border-top:1px solid rgba(255,255,255,.06);background:var(--bg2);flex-shrink:0}
-.dots{display:flex;gap:3px;flex:1;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--dim);transition:all .3s}.dot.on{background:var(--accent)}.dot.dn{background:var(--buy)}
 .cb{padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer}.cb:disabled{opacity:.3;cursor:not-allowed}
-.cp{background:var(--dim);color:var(--text)}.cn{background:var(--accent);color:#fff}.ca{background:var(--buy);color:#000}.ca.on{background:var(--sell);color:#fff}
+.cp{background:var(--dim);color:var(--text)}.cn{background:var(--accent);color:#fff}
 .ti{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center}
 .ti h1{font-size:38px;font-weight:700;letter-spacing:2px;margin-bottom:6px}.ti h1 em{color:var(--buy);font-style:normal}
 .ti .tg{font-size:12px;color:var(--muted);letter-spacing:4px;margin-bottom:24px}
@@ -70,11 +69,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 </div>
 <div style="flex:1;overflow:hidden"><div class="scr" id="scr"></div></div>
 <div class="ctrls">
-  <div class="dots" id="dts"></div>
+  <div style="flex:1"></div>
   <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:60px;text-align:right" id="sl">1/25</span>
   <button class="cb cp" id="bp" onclick="P()">Prev</button>
   <button class="cb cn" id="bn" onclick="N()">Next</button>
-  <button class="cb ca" id="bau" onclick="A()">Auto-play</button>
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
@@ -112,8 +110,8 @@ function KP(d){return'<div class="kpi-s">'+d.map(x=>'<div class="kpi"><div class
 
 const S=[
 // 0 - TITLE
-{t:'',s:null,v:'Welcome to WealthLadder. This is a complete animated walkthrough of your trading platform. 12,760 lines of code. 49 API routes. 12 pages. 6 scanners. Scalp Station. Expiry Day with 6 signal types. Goldilocks Zone. Wealth Ladder. All with voice narration and sound effects. Click Next or Auto-play to begin.',
-h:'<div class="ti"><h1>WEALTH<em>.</em>LADDER</h1><div class="tg">CLIMB SMARTER, TRADE BETTER</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><span class="chip cg">6 scanners</span><span class="chip cb2">Scalp Station</span><span class="chip cr">Expiry Day 0DTE</span><span class="chip co">Goldilocks Zone</span><span class="chip cg">Wealth Ladder</span><span class="chip cb2">12,760 lines</span></div><div style="margin-top:28px;font-size:14px;color:var(--muted);line-height:1.9">25 steps &middot; Voice narration &middot; Sound effects<br>Click <strong style="color:var(--accent)">Next</strong> or <strong style="color:var(--buy)">Auto-play</strong></div></div>'},
+{t:'',s:null,v:'Welcome to WealthLadder. This is a complete animated walkthrough of your trading platform. 12,760 lines of code. 49 API routes. 12 pages. 6 scanners. Scalp Station. Expiry Day with 6 signal types. Goldilocks Zone. Wealth Ladder. All with voice narration and sound effects. Click Next to begin.',
+h:'<div class="ti"><h1>WEALTH<em>.</em>LADDER</h1><div class="tg">CLIMB SMARTER, TRADE BETTER</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><span class="chip cg">6 scanners</span><span class="chip cb2">Scalp Station</span><span class="chip cr">Expiry Day 0DTE</span><span class="chip co">Goldilocks Zone</span><span class="chip cg">Wealth Ladder</span><span class="chip cb2">12,760 lines</span></div><div style="margin-top:28px;font-size:14px;color:var(--muted);line-height:1.9">25 steps &middot; Voice narration &middot; Sound effects<br>Click <strong style="color:var(--accent)">Next</strong> to begin</div></div>'},
 
 // 1 - HOME PAGE
 {t:'09:15',s:null,v:'Step 1. The app opens to the Home page. Your opening capital is 5 lakh rupees. Todays target is 1 percent, which equals 5,000 rupees. The Excess or Shortfall card will track your progress against this target all day long. Below you can see upcoming expiry dates with colour coded index badges.',
@@ -212,22 +210,17 @@ h:'<div class="page-tag">Wealth Ladder</div><div class="narr">Opening capital �
 h:'<div class="page-tag">Technical Architecture</div><div class="narr">Single-file Python/Flask app. All HTML/CSS/JS embedded. Runs localhost:7777.</div><table class="tbl"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td style="font-weight:600">Total lines</td><td class="mo">12,760</td></tr><tr><td style="font-weight:600">Flask routes</td><td class="mo">49</td></tr><tr><td style="font-weight:600">Pages</td><td class="mo">12 (Home, Login, Scanner, Scanners, Dashboard, Watchlist, F&O, Settings, Scalp, Expiry, Wealth, Backtest)</td></tr><tr><td style="font-weight:600">Security</td><td class="mo">Machine-lock + Password + Encrypted config</td></tr><tr><td style="font-weight:600">Quote caching</td><td class="mo">cached_quote() — per-symbol TTL (2s/5s/10s)</td></tr><tr><td style="font-weight:600">Direct kite.quote()</td><td class="mo">Only 2 (inside cache layer)</td></tr><tr><td style="font-weight:600">Risk safety</td><td class="mo">enforce_risk() on every order route</td></tr><tr><td style="font-weight:600">Button safety</td><td class="mo">56 double-click protection points</td></tr><tr><td style="font-weight:600">SL cleanup</td><td class="mo">cancel_sl_for_symbol() on every exit</td></tr><tr><td style="font-weight:600">WebSocket</td><td class="mo">KiteTicker auto-starts on login</td></tr><tr><td style="font-weight:600">Telegram</td><td class="mo">Scan alerts + order alerts</td></tr></tbody></table>'},
 
 // 25 - END
-{t:'',s:null,v:'That was WealthLadder. A complete intraday trading platform built over 11 development sessions. 6 scanners. Scalp Station. Expiry Day with 6 signal types. Goldilocks Zone with 5 automated checks. Pyramid scaling. Wealth Ladder compounding tracker. All protected by daily loss limits, double click safety, and encrypted API keys. To record this as MP4, open this HTML file in Chrome, press Windows plus G for Game Bar or use OBS, and click Auto-play. Climb smarter. Trade better.',
-h:'<div class="ti"><h1>WEALTH<em>.</em>LADDER</h1><div class="tg">DEMO COMPLETE</div><div style="margin-top:16px;font-size:14px;line-height:2.2;color:var(--muted)">49 routes &middot; 12,760 lines &middot; 12 pages &middot; 6 scanners<br>Scalp Station &middot; Expiry Day &middot; Goldilocks Zone<br>Wealth Ladder &middot; Brokerage + STT tracking<br>3-layer security &middot; Centralized cache &middot; Double-click safety</div><div style="margin-top:24px;padding:12px 20px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--accent);line-height:1.8">To record as MP4:<br>1. Open this file in Chrome (double-click wealthladder_demo.html)<br>2. Press <strong>Win+G</strong> (Game Bar) or open <strong>OBS Studio</strong><br>3. Click <strong style="color:var(--buy)">Auto-play</strong> and start recording<br>4. Each step plays for 12 seconds with voice narration</div></div>'}
+{t:'',s:null,v:'That was WealthLadder. A complete intraday trading platform built over 11 development sessions. 6 scanners. Scalp Station. Expiry Day with 6 signal types. Goldilocks Zone with 5 automated checks. Pyramid scaling. Wealth Ladder compounding tracker. All protected by daily loss limits, double click safety, and encrypted API keys. To record this as MP4, open this HTML file in Chrome, press Windows plus G for Game Bar or use OBS, and click Next. Climb smarter. Trade better.',
+h:'<div class="ti"><h1>WEALTH<em>.</em>LADDER</h1><div class="tg">DEMO COMPLETE</div><div style="margin-top:16px;font-size:14px;line-height:2.2;color:var(--muted)">49 routes &middot; 12,760 lines &middot; 12 pages &middot; 6 scanners<br>Scalp Station &middot; Expiry Day &middot; Goldilocks Zone<br>Wealth Ladder &middot; Brokerage + STT tracking<br>3-layer security &middot; Centralized cache &middot; Double-click safety</div><div style="margin-top:24px;padding:12px 20px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--accent);line-height:1.8">To record as MP4:<br>1. Open this file in Chrome (double-click wealthladder_demo.html)<br>2. Press <strong>Win+G</strong> (Game Bar) or open <strong>OBS Studio</strong><br>3. Click <strong style="color:var(--accent)">Next</strong> to advance slides<br>4. Each step plays for 12 seconds with voice narration</div></div>'}
 ];
 
 let ci=0,at=null;
 let _speechKeepAlive=null;
 function _startSpeechKeepAlive(){clearInterval(_speechKeepAlive);_speechKeepAlive=setInterval(()=>{if(window.speechSynthesis.speaking){window.speechSynthesis.pause();window.speechSynthesis.resume()}},5000)}
 function _stopSpeechKeepAlive(){clearInterval(_speechKeepAlive)}
-function R(){const s=S[ci];document.getElementById('scr').innerHTML=s.h;document.getElementById('clk').textContent=s.t?(s.t+' IST · Thursday'):'WealthLadder';document.getElementById('sl').textContent=(ci+1)+'/'+S.length;document.getElementById('dts').innerHTML=S.map((_,i)=>'<div class="dot '+(i<ci?'dn':i===ci?'on':'')+'"></div>').join('');document.getElementById('bp').disabled=ci===0;document.getElementById('bn').textContent=ci===S.length-1?'Replay':'Next';document.getElementById('scr').scrollTop=0}
+function R(){const s=S[ci];document.getElementById('scr').innerHTML=s.h;document.getElementById('clk').textContent=s.t?(s.t+' IST · Thursday'):'WealthLadder';document.getElementById('sl').textContent=(ci+1)+'/'+S.length;document.getElementById('bp').disabled=ci===0;document.getElementById('bn').textContent=ci===S.length-1?'Replay':'Next';document.getElementById('scr').scrollTop=0}
 async function N(){await aI();if(ci>=S.length-1){ci=0;R();return}ci++;R();if(S[ci].s)sn(S[ci].s);if(S[ci].v)spk(S[ci].v)}
 function P(){if(ci>0){ci--;R();window.speechSynthesis.cancel();_stopSpeechKeepAlive()}}
-let autoOn=false;
-function A(){const b=document.getElementById('bau');if(autoOn){autoOn=false;if(at){clearTimeout(at);at=null}b.textContent='Auto-play';b.classList.remove('on');window.speechSynthesis.cancel();return}autoOn=true;b.textContent='Stop';b.classList.add('on');autoNext()}
-function autoNext(){if(!autoOn||ci>=S.length-1){autoOn=false;const b=document.getElementById('bau');b.textContent='Auto-play';b.classList.remove('on');return}N();_speechStart=Date.now();waitForSpeechThenAdvance()}
-let _speechStart=0;
-function waitForSpeechThenAdvance(){if(!autoOn)return;const elapsed=Date.now()-_speechStart;const maxWait=document.getElementById('vOn').checked?45000:5000;if(elapsed>maxWait){at=setTimeout(()=>{if(autoOn)autoNext()},2000);return}if(window.speechSynthesis.speaking||window.speechSynthesis.pending){at=setTimeout(waitForSpeechThenAdvance,300);return}at=setTimeout(()=>{if(autoOn)autoNext()},2500)}
 R();
 _loadVoices();
 window.speechSynthesis.onvoiceschanged=_loadVoices;
