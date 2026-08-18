@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPB Car Lease Analyzer</title>
+<style>
+:root{
+--bg:#0b0b0f;--bg2:rgba(255,255,255,.025);--bg3:rgba(255,255,255,.03);
+--border:rgba(255,255,255,.07);--t1:#ebebeb;--t2:#a0a0a0;--t3:#666;--t4:#444;
+--accent:#34d399;--accent2:#60a5fa;--warn:#fbbf24;--danger:#f87171;
+--accent-bg:rgba(52,211,153,.07);--accent-br:rgba(52,211,153,.22);
+--danger-bg:rgba(248,113,113,.07);--danger-br:rgba(248,113,113,.2);
+--blue-bg:rgba(96,165,250,.07);--blue-br:rgba(96,165,250,.2);
+--warn-bg:rgba(251,191,36,.07);--warn-br:rgba(251,191,36,.2);
+--header-bg:linear-gradient(135deg,rgba(6,78,59,.25) 0%,rgba(11,11,15,1) 55%);
+--bar-track:rgba(255,255,255,.04);--svg-node-green:rgba(52,211,153,.1);--svg-node-blue:rgba(96,165,250,.1);--svg-node-warn:rgba(251,191,36,.1);
+--svg-stroke-green:rgba(52,211,153,.3);--svg-stroke-blue:rgba(96,165,250,.3);--svg-stroke-warn:rgba(251,191,36,.3);--svg-text:#777
+}
+.light{
+--bg:#f5f5f0;--bg2:rgba(0,0,0,.025);--bg3:rgba(0,0,0,.03);
+--border:rgba(0,0,0,.1);--t1:#1a1a1a;--t2:#555;--t3:#888;--t4:#bbb;
+--accent:#059669;--accent2:#2563eb;--warn:#d97706;--danger:#dc2626;
+--accent-bg:rgba(5,150,105,.07);--accent-br:rgba(5,150,105,.25);
+--danger-bg:rgba(220,38,38,.06);--danger-br:rgba(220,38,38,.18);
+--blue-bg:rgba(37,99,235,.06);--blue-br:rgba(37,99,235,.18);
+--warn-bg:rgba(217,119,6,.06);--warn-br:rgba(217,119,6,.18);
+--header-bg:linear-gradient(135deg,rgba(5,150,105,.08) 0%,rgba(245,245,240,1) 55%);
+--bar-track:rgba(0,0,0,.06);--svg-node-green:rgba(5,150,105,.08);--svg-node-blue:rgba(37,99,235,.08);--svg-node-warn:rgba(217,119,6,.08);
+--svg-stroke-green:rgba(5,150,105,.35);--svg-stroke-blue:rgba(37,99,235,.35);--svg-stroke-warn:rgba(217,119,6,.35);--svg-text:#999
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Segoe UI','SF Pro',system-ui,sans-serif;min-height:100vh;transition:background .3s,color .3s}
+.header{background:var(--header-bg);border-bottom:1px solid var(--accent-br);padding:24px 28px 18px}
+.header-inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#0b0b0f}
+.header h1{font-size:20px;font-weight:700} .header h1 span{color:var(--accent)}
+.header p{font-size:11px;color:var(--t3)}
+.theme-toggle{margin-left:auto;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.theme-toggle:hover{border-color:var(--accent-br);color:var(--accent)}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 20px 48px}
+.tabs{display:flex;gap:5px;margin-bottom:22px;flex-wrap:wrap}
+.tab-btn{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:transparent;color:var(--t3)}
+.tab-btn.active{border-color:var(--accent-br);background:var(--accent-bg);color:var(--accent)}
+.tab-content{display:none} .tab-content.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.card-accent{border-color:var(--accent-br)} .card-danger{border-color:var(--danger-br)}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--t3);margin-bottom:14px;text-transform:uppercase}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.calc-layout{display:grid;grid-template-columns:360px 1fr;gap:20px}
+.metric{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.metric.green{border-color:var(--accent-br)}
+.metric-label{font-size:10px;color:var(--t3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.metric-val{font-size:20px;font-weight:700;font-family:monospace}
+.metric-sub{font-size:10.5px;color:var(--t4);margin-top:2px}
+.slider-wrap{margin-bottom:20px}
+.slider-header{display:flex;justify-content:space-between;margin-bottom:5px}
+.slider-header span:first-child{font-size:12.5px;color:var(--t2)}
+.slider-header span:last-child{font-size:13px;font-weight:600;color:var(--t1);font-family:monospace}
+.slider-range{display:flex;justify-content:space-between;font-size:10px;color:var(--t4);margin-top:1px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.toggle-sw{width:34px;height:18px;border-radius:9px;cursor:pointer;position:relative;transition:background .2s}
+.toggle-sw .knob{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;transition:left .2s}
+.bar-h{margin-bottom:10px}
+.bar-h-header{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.bar-h-track{height:7px;background:var(--bar-track);border-radius:4px;overflow:hidden}
+.bar-h-fill{height:100%;border-radius:4px;transition:width .5s}
+.phase-box{border-radius:12px;padding:16px 20px;text-align:center;margin-bottom:4px}
+.phase-box .step{font-size:10px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.phase-box .title{font-size:14px;font-weight:600;color:var(--t1)}
+.phase-box .sub{font-size:12px;color:var(--t2);margin-top:4px}
+.arrow-down{text-align:center;padding:6px 0;font-size:16px;color:var(--t4)}
+.arrow-down .label{font-size:11px;font-weight:600;color:var(--accent);margin-top:2px}
+.flow-box{border-radius:10px;padding:16px;margin-bottom:4px}
+.flow-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+.flow-row .lbl{font-size:12px;color:var(--t2)}
+.flow-row .val{font-size:13px;font-weight:600;font-family:monospace}
+.flow-total{border-top:1px solid;margin-top:6px;padding-top:8px;display:flex;justify-content:space-between}
+.badge{font-size:10px;padding:2px 8px;border-radius:4px;display:inline-block}
+.benefit-item{display:flex;gap:12px;margin-bottom:16px}
+.benefit-icon{width:34px;height:34px;border-radius:9px;background:var(--accent-bg);border:1px solid var(--accent-br);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:700;color:var(--accent)}
+.benefit-title{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.benefit-desc{font-size:11.5px;color:var(--t3);line-height:1.5}
+.tl-step{display:flex;gap:14px}
+.tl-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t1);flex-shrink:0}
+.tl-line{width:1.5px;flex:1;background:var(--border);min-height:16px}
+.tl-title{font-size:13.5px;font-weight:600;color:var(--t1)}
+.tl-desc{font-size:12px;color:var(--t3);line-height:1.55;margin-top:3px}
+.tl-badge{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600}
+table{width:100%;font-size:12px;border-collapse:collapse}
+th,td{padding:7px 6px;border-bottom:1px solid var(--border)}
+th{font-weight:600;color:var(--t3)}
+.mono{font-family:monospace}
+.c-green{color:var(--accent)} .c-blue{color:var(--accent2)} .c-red{color:var(--danger)} .c-warn{color:var(--warn)} .c-t1{color:var(--t1)} .c-t2{color:var(--t2)} .c-t3{color:var(--t3)}
+.bg-green{background:var(--accent-bg);border:1px solid var(--accent-br)}
+.bg-blue{background:var(--blue-bg);border:1px solid var(--blue-br)}
+.bg-red{background:var(--danger-bg);border:1px solid var(--danger-br)}
+.bg-warn{background:var(--warn-bg);border:1px solid var(--warn-br)}
+.eng-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:18px}
+.eng-btn{padding:7px 9px;border-radius:7px;font-size:11px;cursor:pointer;text-align:left;line-height:1.3;border:1px solid var(--border);background:transparent;color:var(--t3)}
+.eng-btn.active{border-color:var(--accent-br);background:var(--accent-bg);color:var(--accent)}
+.eng-btn div:first-child{font-weight:600} .eng-btn div:last-child{opacity:.7}
+.breakup-row{display:grid;grid-template-columns:1fr 90px 100px;gap:6px;padding:6px 0;font-size:12.5px}
+.model-card{border-radius:12px;padding:16px}
+@media(max-width:900px){.calc-layout,.grid-2{grid-template-columns:1fr} .grid-4{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-inner"><div class="logo">F</div><div><h1>FPB Car Lease <span>Analyzer</span></h1><p>Flexible Pay Benefit — Complete guide & tax savings calculator | IT Rules 2026</p></div>
+<button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">☀️</span> <span id="theme-label">Light mode</span></button>
+</div></div>
+<div class="wrap">
+<div class="tabs" id="tabs"></div>
+<div id="tab-calculator" class="tab-content active"></div>
+<div id="tab-howItWorks" class="tab-content"></div>
+<div id="tab-benefits" class="tab-content"></div>
+<div id="tab-lifecycle" class="tab-content"></div>
+</div>
+<script>
+let isDark=true;
+function toggleTheme(){isDark=!isDark;document.body.classList.toggle('light',!isDark);document.getElementById('theme-icon').textContent=isDark?'☀️':'🌙';document.getElementById('theme-label').textContent=isDark?'Light mode':'Dark mode';render()}
+function C(type){const s=getComputedStyle(document.body);return s.getPropertyValue('--'+type).trim()}
+
+const FMT=n=>{if(n>=1e7)return'₹'+(n/1e7).toFixed(2)+' Cr';if(n>=1e5)return'₹'+(n/1e5).toFixed(2)+' L';return'₹'+Math.round(n).toLocaleString('en-IN')};
+const FS=n=>{if(n>=1e7)return'₹'+(n/1e7).toFixed(1)+'Cr';if(n>=1e5)return'₹'+(n/1e5).toFixed(1)+'L';return'₹'+Math.round(n).toLocaleString('en-IN')};
+const STD_DED=75000;
+const SLABS=[[0,400000,0],[400000,800000,.05],[800000,1200000,.10],[1200000,1600000,.15],[1600000,2000000,.20],[2000000,2400000,.25],[2400000,Infinity,.30]];
+function calcTax(taxableIncome){
+  let tax=0;
+  for(const[lo,hi,rate]of SLABS){if(taxableIncome<=lo)break;tax+=(Math.min(taxableIncome,hi)-lo)*rate}
+  if(taxableIncome<=1200000)tax=0;
+  let sc=0,scR=0;
+  if(taxableIncome>2e7){sc=tax*.25;scR=25}else if(taxableIncome>1e7){sc=tax*.15;scR=15}else if(taxableIncome>5e6){sc=tax*.10;scR=10}
+  const cess=(tax+sc)*.04;
+  return{tax:Math.round(tax),sc:Math.round(sc),scR,cess:Math.round(cess),total:Math.round(tax+sc+cess)}
+}
+function getSlabAt(income){
+  if(income>2400000)return'30%';if(income>2000000)return'25%';if(income>1600000)return'20%';if(income>1200000)return'15%';if(income>800000)return'10%';if(income>400000)return'5%';return'Nil'
+}
+const PERQ={small_employer:{car:5000,driver:3000,l1:'≤1.6L',l2:' expenses by employer'},large_employer:{car:7000,driver:3000,l1:'>1.6L',l2:' expenses by employer'},small_employee:{car:2000,driver:3000,l1:'≤1.6L',l2:' expenses by employee'},large_employee:{car:3000,driver:3000,l1:'>1.6L',l2:' expenses by employee'}};
+
+let S={ctc:2500000,carCost:800000,leaseYears:4,engineType:'large_employer',includeDriver:true,fuelMonthly:15000,maintMonthly:3000,driverMonthly:25000,maxCarPct:15,leaseRate:10,tab:'calculator'};
+function maxCar(){return Math.round(S.ctc*S.maxCarPct/100)}
+function calc(){
+  const perq=PERQ[S.engineType],dm=S.includeDriver?S.driverMonthly:0;
+  const n=S.leaseYears*12,r=S.leaseRate/100/12;
+  const ml=r>0?Math.round(S.carCost*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1)):Math.round(S.carCost/n);
+  const totalLeasePayment=ml*n,totalInterest=totalLeasePayment-S.carCost;
+  const tm=ml+S.fuelMonthly+S.maintMonthly+dm,ta=tm*12,pm=perq.car+(S.includeDriver?perq.driver:0),pa=pm*12;
+  const nr=ta-pa;
+  // Slab-based tax: without lease vs with lease
+  const taxableWithout=Math.max(S.ctc-STD_DED,0);
+  const taxableWith=Math.max(S.ctc-STD_DED-ta+pa,0);
+  const txW=calcTax(taxableWithout),txL=calcTax(taxableWith);
+  const tsA=txW.total-txL.total,tsT=tsA*S.leaseYears,tcl=ta*S.leaseYears,ec=tcl-tsT;
+  const sp=tcl>0?Math.round(tsT/tcl*100):0;
+  const effRate=nr>0?Math.round(tsA/nr*100):0;
+  const topSlab=getSlabAt(taxableWithout),reducedSlab=getSlabAt(taxableWith);
+  const yr=[];for(let i=1;i<=S.leaseYears;i++)yr.push({y:i,c:tsA*i});
+  return{perq,ml,tm,ta,pm,pa,nr,tsA,tsT,tcl,ec,sp,yr,dm,totalInterest,totalLeasePayment,
+    txW,txL,taxableWithout,taxableWith,effRate,topSlab,reducedSlab};
+}
+
+function switchTab(id){S.tab=id;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab-content').forEach(d=>d.classList.toggle('active',d.id==='tab-'+id));render()}
+function initTabs(){const t=document.getElementById('tabs');['calculator','howItWorks','benefits','lifecycle'].forEach((id,i)=>{const b=document.createElement('button');b.className='tab-btn'+(i===0?' active':'');b.dataset.tab=id;b.textContent=['Interactive calculator','How it works','Benefits','Lifecycle & charts'][i];b.onclick=()=>switchTab(id);t.appendChild(b)})}
+
+function slider(id,label,min,max,step,val,fmt,suffix){
+  return`<div class="slider-wrap"><div class="slider-header"><span>${label}</span><span>${fmt?fmt(val):val}${suffix||''}</span></div><input type="range" min="${min}" max="${max}" step="${step}" value="${val}" oninput="upd('${id}',+this.value)"><div class="slider-range"><span>${fmt?fmt(min):min}</span><span>${fmt?fmt(max):max}</span></div></div>`;
+}
+function upd(key,val){S[key]=val;if(S.carCost>maxCar())S.carCost=maxCar();render()}
+
+function renderCalc(){
+  const c=calc(),mc=maxCar(),A=C('accent'),D=C('danger'),T1=C('t1'),T2=C('t2'),T3=C('t3'),T4=C('t4'),B=C('border'),ABR=C('accent-br');
+  const engBtns=Object.entries(PERQ).map(([k,v])=>`<button class="eng-btn${S.engineType===k?' active':''}" onclick="upd('engineType','${k}')"><div>${v.l1}</div><div>${v.l2}</div></button>`).join('');
+  const driverOn=S.includeDriver;
+  const principalMo=Math.round(S.carCost/(S.leaseYears*12)),interestMo=c.ml-principalMo;
+  const rows=[
+    {l:'Car lease rental (EMI)',m:c.ml,b:1},
+    {l:'  └ Principal component',m:principalMo,sub:1},
+    {l:'  └ Interest @ '+S.leaseRate+'% p.a.',m:interestMo,sub:1,warn:1},
+    {l:'Fuel allowance',m:S.fuelMonthly},{l:'Maintenance & insurance',m:S.maintMonthly},
+    ...(driverOn?[{l:'Driver salary',m:c.dm}]:[]),
+    {l:'Total pre-tax deduction',m:c.tm,b:1,s:1},
+    {l:'Perquisite taxed ('+c.perq.l1+')',m:c.pm},
+    ...(driverOn?[{l:'Driver perquisite',m:3000}]:[]),
+    {l:'Net taxable income reduced',m:c.tm-c.pm,s:1},
+    {l:'Tax saved @ '+c.effRate+'% effective',m:Math.round(c.tsA/12),b:1,g:1,s:1}
+  ];
+  const breakup=rows.map(r=>`<div class="breakup-row" style="${r.s?'border-top:1px solid var(--border);':''}${r.b?'font-weight:600;':''}${r.g?'color:var(--accent);':r.warn?'color:var(--warn);':r.sub?'color:var(--t4);font-size:11.5px;':'color:var(--t2);'}"><span>${r.l}</span><span style="text-align:right;font-family:monospace">${FS(r.m)}</span><span style="text-align:right;font-family:monospace">${FS(r.m*12)}</span></div>`).join('');
+  const bars=c.yr.map(y=>`<div class="bar-h"><div class="bar-h-header"><span class="c-t2">Year ${y.y}</span><span class="c-green mono" style="font-weight:600;font-size:12px">${FS(y.c)}</span></div><div class="bar-h-track"><div class="bar-h-fill" style="width:${y.c/c.tsT*100}%;background:linear-gradient(90deg,${A}88,${A})"></div></div></div>`).join('');
+  // Premature exit calculation - outstanding balance using amortization formula
+  const exitRows=(()=>{const r=S.leaseRate/100/12,n=S.leaseYears*12,M=c.ml,P=S.carCost,rows=[];for(let y=1;y<=S.leaseYears;y++){const k=y*12;let bal=r>0?P*Math.pow(1+r,k)-M*(Math.pow(1+r,k)-1)/r:P-(P/n)*k;bal=Math.max(0,Math.round(bal));const fc=Math.round(bal*0.03),tp=bal+fc,emis=M*k,ts=c.tsA*y,net=emis+tp-ts,isLast=y===S.leaseYears;rows.push(`<tr${isLast?' style="background:var(--accent-bg)"':''}><td class="c-t2">${isLast?'Year '+y+' (full term)':'End of Year '+y}</td><td style="text-align:right;font-family:monospace;color:var(--t2)">${FS(emis)}</td><td style="text-align:right;font-family:monospace">${FS(bal)}</td><td style="text-align:right;font-family:monospace;color:var(--t3)">${FS(fc)}</td><td style="text-align:right;font-family:monospace;color:var(--warn);font-weight:600">${isLast?'Notional ₹1–25K':FS(tp)}</td><td style="text-align:right;font-family:monospace;color:var(--accent)">${FS(ts)}</td><td style="text-align:right;font-family:monospace;font-weight:600">${FS(net)}</td></tr>`)}return rows.join('')})();
+  const exitCard=`<div class="card" style="margin-bottom:14px"><div class="section-title">Premature exit — amount payable at end of each year</div><div style="font-size:11.5px;color:var(--t3);margin-bottom:12px;line-height:1.6">If you exit the lease early and buy out the car: pay <b>outstanding principal + ~3% foreclosure charges</b>. Tax savings already claimed are retained — no clawback. <span style="color:var(--warn)">Foreclosure charges vary by lessor (typically 3–5%); confirm with your leasing company.</span></div><table><thead><tr><th style="text-align:left">Exit point</th><th style="text-align:right">EMIs paid</th><th style="text-align:right">Outstanding principal</th><th style="text-align:right">Foreclosure (3%)</th><th style="text-align:right;color:var(--warn)">Buyout amount</th><th style="text-align:right;color:var(--accent)">Tax saved (retained)</th><th style="text-align:right">Net outflow</th></tr></thead><tbody>${exitRows}</tbody></table><div style="margin-top:12px;padding:10px 12px;border-radius:8px;font-size:11px;color:var(--t3);line-height:1.6" class="bg-blue"><b style="color:var(--accent2)">Net outflow</b> = EMIs paid + Buyout amount − Tax saved. Represents your true cost to own the car at that exit point. Compare with new-car loan EMIs to decide whether early exit makes sense.</div></div>`;
+  return`<div class="calc-layout"><div><div class="card">
+<div class="section-title">Input parameters</div>
+${slider('ctc','Annual CTC',1500000,30000000,100000,S.ctc,FMT)}
+${slider('maxCarPct','Max car value (% of CTC)',5,100,1,S.maxCarPct,null,'%')}
+<div style="padding:10px 14px;border-radius:8px;margin-bottom:18px;margin-top:-8px" class="bg-green">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;color:var(--accent);letter-spacing:.04em;text-transform:uppercase">Max car value allowed</div><div style="font-size:18px;font-weight:700;color:var(--accent);font-family:monospace">${FMT(mc)}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--t4)">${S.maxCarPct}% of ${FS(S.ctc)}</div><div style="font-size:9px;color:var(--warn)">Company policy, not statutory</div></div></div></div>
+${slider('carCost','Car on-road price',300000,Math.max(mc,300000),50000,Math.min(S.carCost,mc),FMT)}
+${slider('leaseYears','Lease tenure',2,7,1,S.leaseYears,null,' years')}
+${slider('leaseRate','Lease interest rate (% p.a.)',0,18,0.5,S.leaseRate,null,'%')}
+<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Engine & expense bearer</div>
+<div class="eng-grid">${engBtns}</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:${driverOn?8:18}px">
+<div class="toggle-sw" style="background:${driverOn?'#059669':'var(--border)'}" onclick="upd('includeDriver',${!driverOn})"><div class="knob" style="left:${driverOn?18:2}px"></div></div>
+<span style="font-size:12px;color:var(--t2)">Include driver (${FMT(S.driverMonthly)}/mo)</span></div>
+${driverOn?slider('driverMonthly','Driver monthly salary',15000,50000,1000,S.driverMonthly,FMT):''}
+${slider('fuelMonthly','Monthly fuel',5000,50000,5000,S.fuelMonthly,FMT)}
+${slider('maintMonthly','Monthly maintenance',3000,60000,500,S.maintMonthly,FMT)}
+</div></div>
+<div>
+<div class="grid-4" style="margin-bottom:14px">
+<div class="metric green"><div class="metric-label">Annual tax saved</div><div class="metric-val c-green">${FMT(c.tsA)}</div><div class="metric-sub">${c.sp}% of car cost</div></div>
+<div class="metric green"><div class="metric-label">Total over ${S.leaseYears} yrs</div><div class="metric-val c-green">${FMT(c.tsT)}</div><div class="metric-sub">Employee benefit</div></div>
+<div class="metric"><div class="metric-label">Effective car cost</div><div class="metric-val">${FMT(c.ec)}</div><div class="metric-sub">After tax benefit</div></div>
+<div class="metric"><div class="metric-label">Effective tax saving rate</div><div class="metric-val">${c.effRate}%</div><div class="metric-sub">Slab: ${c.topSlab} → ${c.reducedSlab}</div></div></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+<div class="metric"><div class="metric-label">Lease EMI (monthly)</div><div class="metric-val" style="font-size:16px">${FMT(c.ml)}</div><div class="metric-sub">@ ${S.leaseRate}% p.a. for ${S.leaseYears} yrs</div></div>
+<div class="metric" style="border-color:var(--warn-br)"><div class="metric-label">Total interest paid</div><div class="metric-val c-warn" style="font-size:16px">${FMT(c.totalInterest)}</div><div class="metric-sub">Over lease term</div></div>
+<div class="metric green"><div class="metric-label">Net benefit (savings - interest)</div><div class="metric-val c-green" style="font-size:16px">${FMT(c.tsT-c.totalInterest)}</div><div class="metric-sub">${c.tsT>c.totalInterest?'Tax savings exceed interest':'Interest exceeds savings'}</div></div>
+</div>
+<div class="grid-2" style="margin-bottom:14px">
+<div class="card card-danger"><div class="section-title"><span class="c-red">Without car lease</span></div><div style="font-size:11px;color:var(--t3);margin-bottom:10px">Taxable income: ${FMT(c.taxableWithout)} (after ₹75K std deduction)</div>
+${[['Total tax payable',c.txW.total,'var(--danger)'],['Tax (before SC+cess)',c.txW.tax,'var(--t2)'],['Surcharge ('+c.txW.scR+'%)',c.txW.sc,'var(--t2)'],['Cess (4%)',c.txW.cess,'var(--t2)']].map(([l,v,cl],i)=>`<div style="display:flex;justify-content:space-between;padding:7px 0;${i?'border-top:1px solid var(--border);':''}"><span style="font-size:12px;color:var(--t3)">${l}</span><span style="font-size:13px;font-weight:${i===0?700:400};color:${cl};font-family:monospace">${FMT(v)}</span></div>`).join('')}</div>
+<div class="card card-accent"><div class="section-title"><span class="c-green">With FPB car lease</span></div><div style="font-size:11px;color:var(--t3);margin-bottom:10px">Taxable income: ${FMT(c.taxableWith)} (lease deducted, perquisite added)</div>
+${[['Total tax payable',c.txL.total,'var(--accent)'],['Tax (before SC+cess)',c.txL.tax,'var(--t2)'],['Surcharge ('+c.txL.scR+'%)',c.txL.sc,'var(--t2)'],['Cess (4%)',c.txL.cess,'var(--t2)']].map(([l,v,cl],i)=>`<div style="display:flex;justify-content:space-between;padding:7px 0;${i?'border-top:1px solid var(--accent-br);':''}"><span style="font-size:12px;color:var(--t3)">${l}</span><span style="font-size:13px;font-weight:${i===0?700:400};color:${cl};font-family:monospace">${FMT(v)}</span></div>`).join('')}</div></div>
+<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="section-title" style="margin-bottom:0">Monthly breakup</div><div style="display:grid;grid-template-columns:90px 100px;gap:6px;font-size:10px;color:var(--t4)"><span style="text-align:right">Monthly</span><span style="text-align:right">Annual</span></div></div>${breakup}</div>
+<div class="grid-2">
+<div class="card"><div class="section-title">Cumulative tax savings</div>${bars}
+<div style="margin-top:10px;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center" class="bg-green"><span style="font-size:12px;color:var(--accent)">Total over ${S.leaseYears} yrs</span><span style="font-size:18px;font-weight:700;color:var(--accent);font-family:monospace">${FMT(c.tsT)}</span></div></div>
+<div class="card"><div class="section-title">Company perspective</div>
+<div style="padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:12px;color:var(--t2);line-height:1.6" class="bg-warn"><span style="color:var(--warn);font-weight:600">Important:</span> The company does NOT save extra tax. Total CTC stays the same — lease rental replaces an equal portion of salary. Both are deductible business expenses. The benefits are operational, not tax-based.</div>
+${[
+{l:'Total cost to company',v:FMT(S.ctc)+'/yr',s:'Same with or without lease — CTC unchanged',cl:'var(--t1)'},
+{l:'No asset on balance sheet',v:'Zero ownership',s:'Car owned by lessor. No depreciation tracking or disposal needed',cl:'var(--accent)'},
+{l:'Employee retention lock-in',v:S.leaseYears+' years',s:'Natural retention at zero incremental cost — lease creates stickiness',cl:'var(--accent2)'},
+{l:'Monthly TDS reduced by',v:FMT(Math.round(c.tsA/12)),s:'Lower TDS deduction each month (better payroll cash flow)',cl:'var(--accent)'},
+{l:'Competitive compensation',v:'Senior perk',s:'Positions company alongside IT/consulting majors for talent acquisition',cl:'var(--accent2)'}
+].map(r=>`<div style="margin-bottom:14px"><div style="font-size:11px;color:var(--t3);margin-bottom:2px">${r.l}</div><div style="font-size:18px;font-weight:700;color:${r.cl};font-family:monospace">${r.v}</div><div style="font-size:10px;color:var(--t4)">${r.s}</div></div>`).join('')}
+<div style="padding:10px 14px;border-radius:8px;margin-top:4px;font-size:12px;color:var(--t2);line-height:1.7" class="bg-red"><span style="color:var(--danger);font-weight:600">Admin overhead (be aware):</span><br>
+• HR: Policy setup, employee opt-in/opt-out management, FBP declarations<br>
+• Payroll: Salary restructuring, perquisite calculation, TDS adjustment monthly<br>
+• Compliance: Journey logbook maintenance, employer certificates under Rule 3(2)(B), 6-year record retention<br>
+• Accounts: Leasing company invoice processing, GST reconciliation<br>
+• Operations: Mid-tenure exits, car handover/buyout coordination<br>
+• Ongoing: Leasing company relationship management, policy updates per IT rule changes</div>
+</div></div>
+${exitCard}
+<div style="margin-top:14px;padding:10px 16px;border-radius:8px;font-size:11px;color:var(--t3);line-height:1.6" class="bg-warn"><span style="color:var(--warn);font-weight:600">Disclaimer:</span> Illustrative calculations based on IT Rules 2026 (eff. 1 Apr 2026). Max car value is a suggested policy cap. GST on lease (28%+cess) borne as cost — ITC blocked for passenger vehicles (seating ≤13). Perquisite benefit for 1 car only. Consult a CA for personalized advice.</div>
+</div></div>`;
+}
+
+function perqTable(){return`<table><thead><tr><th style="text-align:left">Scenario (official + personal use)</th><th style="text-align:right">Old rules</th><th style="text-align:right;color:var(--accent)">2026 rules</th><th style="text-align:right;color:var(--warn)">Change</th></tr></thead><tbody>
+${[['Car ≤1.6L, expenses by employer','₹1,800/mo','₹5,000/mo','+178%'],['Car >1.6L, expenses by employer','₹2,400/mo','₹7,000/mo','+192%'],['Car ≤1.6L, expenses by employee','₹600/mo','₹2,000/mo','+233%'],['Car >1.6L, expenses by employee','₹900/mo','₹3,000/mo','+233%'],['Driver (if provided)','₹900/mo','₹3,000/mo','+233%']].map(([s,o,n,ch])=>`<tr><td class="c-t2">${s}</td><td style="text-align:right;color:var(--t3);font-family:monospace">${o}</td><td style="text-align:right;font-weight:600;color:var(--t1);font-family:monospace">${n}</td><td style="text-align:right;color:var(--warn);font-family:monospace">${ch}</td></tr>`).join('')}</tbody></table>`}
+
+function renderHowItWorks(){
+  return`
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="tl-badge bg-green" style="color:var(--accent)">Phase 1</span><span style="font-size:16px;font-weight:700">Policy setup</span></div>
+<p style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:16px">The company partners with a car leasing firm (ALD Automotive, LeasePlan, Orix, etc.), undergoes a credit evaluation, and defines the car lease policy — eligible brands, CTC band criteria, lease tenure options, and expense coverage.</p>
+<div class="phase-box bg-green"><div class="step">Step 1</div><div class="title">Company partners with leasing firm</div><div class="sub">Credit check, policy framework, eligible car list defined</div></div>
+<div class="arrow-down">▼</div>
+<div class="phase-box bg-blue"><div class="step">Step 2</div><div class="title">Employee opts in via FBP</div><div class="sub">Salary restructuring — allocates CTC portion towards car lease component</div></div>
+<div class="arrow-down">▼</div>
+<div class="phase-box bg-warn"><div class="step">Step 3</div><div class="title">Lease agreement executed</div><div class="sub">3-party: Company + Leasing firm + Employee. Zero down payment required.</div></div></div>
+
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="tl-badge bg-blue" style="color:var(--accent2)">Phase 2</span><span style="font-size:16px;font-weight:700">Monthly money flow — the tax magic</span></div>
+<p style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:14px">Your salary gets restructured every month — what you deduct pre-tax is far more than what comes back as taxable perquisite. Illustrated for a ₹30L CTC employee with a ₹12L car:</p>
+<div class="flow-box" style="background:var(--bg3)"><div style="font-size:13px;font-weight:600;margin-bottom:6px">Gross monthly salary</div><div style="font-size:12px;color:var(--t3)">Monthly CTC (₹30L / 12) = <span style="color:var(--t1);font-weight:600;font-family:monospace">₹2,50,000</span></div></div>
+<div class="arrow-down">▼<div class="label">Pre-tax deductions (FBP car component)</div></div>
+<div class="flow-box bg-red"><div style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:10px">Deducted BEFORE tax calculation</div>
+${[['Car lease rental (incl. ~10% interest)','₹25,000','Paid to leasing co.'],['Fuel allowance','₹10,000',''],['Maintenance + insurance','₹10,000',''],['Driver salary','₹25,000','']].map(([l,v,b])=>`<div class="flow-row"><span class="lbl">${l}</span><div style="display:flex;gap:8px;align-items:center"><span class="val">${v}</span>${b?`<span class="badge bg-red" style="color:var(--danger)">${b}</span>`:''}</div></div>`).join('')}
+<div class="flow-total" style="border-color:var(--danger-br)"><span style="font-size:12px;font-weight:600">Total pre-tax car deduction</span><span style="font-size:14px;font-weight:700;color:var(--danger);font-family:monospace">₹70,000/mo</span></div></div>
+<div class="arrow-down">▼<div class="label">Only perquisite value added back as taxable</div></div>
+<div class="flow-box bg-green"><div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px">Perquisite added to taxable salary (Rule 15, IT Rules 2026)</div>
+${[['Car perquisite (>1.6L engine, expenses by employer)','₹7,000'],['Driver perquisite','₹3,000']].map(([l,v])=>`<div class="flow-row"><span class="lbl">${l}</span><span class="val c-green">${v}</span></div>`).join('')}
+<div class="flow-total" style="border-color:var(--accent-br)"><span style="font-size:12px;font-weight:600">Total taxable perquisite</span><span style="font-size:14px;font-weight:700;color:var(--accent);font-family:monospace">₹10,000/mo</span></div></div>
+<div class="arrow-down">▼</div>
+<div class="flow-box" style="background:var(--bg3)"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Net result each month</div>
+<div class="flow-row"><span class="lbl">Income removed from tax</span><span class="val">₹70,000</span></div>
+<div class="flow-row"><span class="lbl">Added back as perquisite</span><span class="val c-t3">₹10,000</span></div>
+<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:10px">
+<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:600">Net taxable income reduced by</span><span style="font-size:18px;font-weight:700;color:var(--accent);font-family:monospace">₹60,000/mo</span></div>
+<div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">Monthly tax saved @ 31.2%</span><span style="font-size:18px;font-weight:700;color:var(--accent);font-family:monospace">₹18,720</span></div></div></div></div>
+
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="tl-badge bg-warn" style="color:var(--warn)">Phase 3</span><span style="font-size:16px;font-weight:700">Three-party relationship</span></div>
+<p style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:6px">The leasing company owns the car throughout. Employer pays lease rental to lessor each month (deducting from CTC). Employee uses the car for official and personal purposes.</p>
+<div style="padding:10px 0"><svg viewBox="0 0 600 360" style="width:100%;max-width:560px;display:block;margin:0 auto">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="var(--accent)" stroke-width="1.5"/></marker><marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="var(--accent2)" stroke-width="1.5"/></marker><marker id="ah3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="var(--warn)" stroke-width="1.5"/></marker></defs>
+<rect x="30" y="20" width="160" height="64" rx="12" fill="var(--svg-node-green)" stroke="var(--svg-stroke-green)" stroke-width="1"/><text x="110" y="44" text-anchor="middle" fill="var(--accent)" font-size="13" font-weight="600">Employee</text><text x="110" y="62" text-anchor="middle" fill="var(--svg-text)" font-size="10">Uses the car</text>
+<rect x="410" y="20" width="160" height="64" rx="12" fill="var(--svg-node-blue)" stroke="var(--svg-stroke-blue)" stroke-width="1"/><text x="490" y="44" text-anchor="middle" fill="var(--accent2)" font-size="13" font-weight="600">Company (MasTec)</text><text x="490" y="62" text-anchor="middle" fill="var(--svg-text)" font-size="10">Employer</text>
+<rect x="220" y="260" width="160" height="64" rx="12" fill="var(--svg-node-warn)" stroke="var(--svg-stroke-warn)" stroke-width="1"/><text x="300" y="284" text-anchor="middle" fill="var(--warn)" font-size="13" font-weight="600">Leasing company</text><text x="300" y="302" text-anchor="middle" fill="var(--svg-text)" font-size="10">Owns the car</text>
+<line x1="192" y1="42" x2="408" y2="42" stroke="var(--accent)" stroke-width="1" marker-end="url(#ah)"/><text x="300" y="36" text-anchor="middle" fill="var(--svg-text)" font-size="9">Works under CTC</text>
+<line x1="408" y1="62" x2="192" y2="62" stroke="var(--accent2)" stroke-width="1" marker-end="url(#ah2)"/><text x="300" y="80" text-anchor="middle" fill="var(--svg-text)" font-size="9">Salary after pre-tax car deduction</text>
+<line x1="410" y1="86" x2="382" y2="258" stroke="var(--accent2)" stroke-width="1" marker-end="url(#ah2)"/><text x="430" y="170" text-anchor="start" fill="var(--svg-text)" font-size="9">Pays lease</text><text x="430" y="182" text-anchor="start" fill="var(--svg-text)" font-size="9">rental monthly</text>
+<line x1="220" y1="280" x2="112" y2="86" stroke="var(--warn)" stroke-width="1" marker-end="url(#ah3)"/><text x="110" y="180" text-anchor="start" fill="var(--svg-text)" font-size="9">Provides car for</text><text x="110" y="192" text-anchor="start" fill="var(--svg-text)" font-size="9">official + personal use</text>
+<line x1="300" y1="326" x2="300" y2="340" stroke="var(--t4)" stroke-width=".5" stroke-dasharray="3 3"/><text x="300" y="354" text-anchor="middle" fill="var(--t3)" font-size="10">After lease: car transfers to employee at notional value</text>
+</svg></div></div>
+
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="tl-badge bg-red" style="color:var(--danger)">Phase 4</span><span style="font-size:16px;font-weight:700">Perquisite valuation — old vs 2026 rules</span></div>
+<p style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:14px">CBDT notified IT Rules 2026 effective 1 April 2026. Perquisite values increased nearly 3x — but benefit remains substantial since the arbitrage gap is still massive.</p>
+${perqTable()}
+<div style="margin-top:14px;padding:10px 14px;border-radius:8px;font-size:11px;color:var(--t3);line-height:1.6" class="bg-warn">Even with the increase: for a >1.6L car with driver, monthly perquisite = ₹10,000 vs deduction of ₹70K+. At 31.2% marginal rate, the annual saving is still ₹2.2L+.</div></div>
+
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="tl-badge bg-blue" style="color:var(--accent2)">Phase 5</span><span style="font-size:16px;font-weight:700">Bills & documentation — what does the employee submit?</span></div>
+<p style="font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:14px">This depends on how the policy is structured. Two models — bill requirement differs completely:</p>
+<div class="grid-2" style="margin-bottom:16px">
+<div class="model-card bg-green"><div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:4px">Model A — Expenses borne by employer</div><div style="font-size:11px;color:var(--accent);margin-bottom:10px;padding:3px 8px;border-radius:4px;background:var(--accent-bg);display:inline-block;font-weight:600">Recommended</div>
+<div style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px">Employer directly pays the leasing company for everything — fuel card, maintenance, driver bundled into lease. Employee doesn't handle money or bills.</div>
+<div style="font-size:12px;color:var(--t2);line-height:1.8">• Fuel — Company fuel card<br>• Maintenance — Included in wet lease<br>• Driver — Company payroll / lease bundle<br>• Bills from employee — <span style="color:var(--accent);font-weight:600">None required</span></div>
+<div style="margin-top:10px;padding:6px 10px;border-radius:6px;background:var(--accent-bg);font-size:11px;color:var(--t3)">Perquisite: ₹5,000–₹7,000/mo + ₹3,000 driver</div></div>
+<div class="model-card bg-warn"><div style="font-size:13px;font-weight:600;color:var(--warn);margin-bottom:4px">Model B — Employee reimburses</div><div style="font-size:11px;color:var(--warn);margin-bottom:10px;padding:3px 8px;border-radius:4px;background:var(--warn-bg);display:inline-block;font-weight:600">Lower perquisite, more paperwork</div>
+<div style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px">Employee pays fuel, maintenance, driver out of pocket and submits bills monthly. Unreimbursed amounts paid as taxable salary in March.</div>
+<div style="font-size:12px;color:var(--t2);line-height:1.8">• Fuel — <span style="color:var(--warn);font-weight:600">Submit fuel bills monthly</span><br>• Maintenance — <span style="color:var(--warn);font-weight:600">Submit service/repair bills</span><br>• Driver — <span style="color:var(--warn);font-weight:600">Submit salary payment proof</span><br>• RC copy — Must be submitted</div>
+<div style="margin-top:10px;padding:6px 10px;border-radius:6px;background:var(--warn-bg);font-size:11px;color:var(--t3)">Perquisite: ₹2,000–₹3,000/mo + ₹3,000 driver</div></div></div>
+<table style="margin-bottom:16px"><thead><tr><th style="text-align:left">Component</th><th style="text-align:center;color:var(--accent)">Model A (employer bears)</th><th style="text-align:center;color:var(--warn)">Model B (employee reimburses)</th></tr></thead><tbody>
+${[['Fuel','Fuel card from leasing co.','Submit fuel bills monthly'],['Maintenance','Included in wet lease','Submit service bills'],['Driver salary','Company payroll / lease bundle','Submit payment proof'],['Insurance','Bundled in lease rental','Bundled in lease rental'],['<b>Bills needed</b>','<b style="color:var(--accent)">None</b>','<b style="color:var(--warn)">All mandatory by 10th</b>'],['Perquisite (≤1.6L)','₹5,000/mo','₹2,000/mo'],['Perquisite (>1.6L)','₹7,000/mo','₹3,000/mo'],['Driver perquisite','₹3,000/mo','₹3,000/mo'],['<b>If bills not submitted</b>','N/A','<b style="color:var(--warn)">Paid as fully taxable</b>']].map(([c,a,b])=>`<tr><td class="c-t2">${c}</td><td style="text-align:center;color:var(--t2)">${a}</td><td style="text-align:center;color:var(--t2)">${b}</td></tr>`).join('')}</tbody></table>
+<div style="border-radius:10px;padding:14px;margin-bottom:14px" class="bg-red"><div style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:6px">Mandatory for BOTH models — employer's responsibility</div>
+<div style="font-size:12px;color:var(--t2);line-height:1.7">• <b>Journey logbook</b> — date, kms, purpose, start/end location<br>• <b>Employer certificate</b> — confirming official use (Rule 3(2)(B))<br>• <b>Records retention</b> — minimum 6 years<br>• Without logbook + certificate, entire amount becomes fully taxable</div></div>
+<div style="border-radius:10px;padding:14px;background:var(--bg3)"><div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px">Why Model A is recommended</div>
+<div style="font-size:12px;color:var(--t3);line-height:1.7">• No monthly bill chasing from employees<br>• Zero compliance risk from missing/rejected bills<br>• Perquisite difference only ₹2,000–₹4,000/mo higher<br>• Tax saving (₹1.5L–₹6L/year) far outweighs marginal increase<br>• Most large IT/consulting companies use this model</div></div></div>`;
+}
+
+function renderBenefits(){
+  const bi=(icon,title,desc)=>`<div class="benefit-item"><div class="benefit-icon">${icon}</div><div><div class="benefit-title">${title}</div><div class="benefit-desc">${desc}</div></div></div>`;
+  return`<div class="grid-2">
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:18px"><div class="benefit-icon">E</div><span style="font-size:16px;font-weight:700">Employee benefits</span></div>
+${bi('$','Massive tax savings (up to 31%)','Lease rental deducted pre-tax. Only ₹7K-10K/mo perquisite taxed. At ₹30L CTC, save ₹2.2L+ annually.')}
+${bi('0','Zero down payment','No upfront cost. Leasing co. buys the car. Monthly payment from pre-tax salary.')}
+${bi('W','Hassle-free maintenance','Insurance, servicing, roadside assistance bundled. Wet leasing covers all repairs.')}
+${bi('K','Own car at lease end','After 3-4 years, car transfers at notional value (₹1–₹50K) since fully depreciated.')}
+${bi('F','Fuel & driver tax benefits','Fuel and driver salary also deducted pre-tax, further reducing taxable income.')}
+${bi('U','Easy upgrade cycle','At renewal, swap for a new model. No resale or depreciation risk.')}
+${bi('R','Works in both tax regimes','Perquisite rules apply equally under old and new regimes.')}
+${bi('J','Portable across jobs','If changing employers: surrender, buy at residual, or continue at new company.')}</div>
+<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:18px"><div class="benefit-icon" style="background:var(--blue-bg);border-color:var(--blue-br);color:var(--accent2)">C</div><span style="font-size:16px;font-weight:700">Company benefits</span></div>
+${bi('B','Same cost — CTC restructuring only','No extra spend. Lease replaces equivalent salary. Both are deductible business expenses — no incremental corporate tax saving.')}
+${bi('A','No asset on balance sheet','Car owned by lessor. No depreciation tracking, no asset disposal logistics. Clean books.')}
+${bi('R','Employee retention tool','3-4 year lease creates natural lock-in at zero extra cost — carved from existing CTC.')}
+${bi('C','Lower monthly TDS outflow','Employee taxable salary is lower due to lease deduction. Monthly TDS is less, improving payroll cash flow.')}
+${bi('P','Competitive compensation','Car lease as FBP perk positions company competitively vs IT/consulting majors for senior hiring.')}
+<div style="margin-top:16px;padding:14px;border-radius:10px" class="bg-red"><div style="font-size:12px;font-weight:600;color:var(--danger);margin-bottom:6px">Admin overhead — added work for company teams</div><div style="font-size:11.5px;color:var(--t3);line-height:1.7">• <b>HR:</b> Policy setup, employee opt-in/opt-out, FBP declarations quarterly<br>• <b>Payroll:</b> Salary restructuring, perquisite computation, TDS adjustment every month<br>• <b>Compliance:</b> Journey logbook maintenance, employer certificates (Rule 3(2)(B)), 6-year record retention<br>• <b>Accounts:</b> Leasing company invoice processing, GST reconciliation<br>• <b>Operations:</b> Mid-tenure exits, car handover/buyout coordination, policy updates per IT rule changes</div></div>
+<div style="margin-top:16px;padding:14px;border-radius:10px" class="bg-warn"><div style="font-size:12px;font-weight:600;color:var(--warn);margin-bottom:6px">Other caveats</div><div style="font-size:11.5px;color:var(--t3);line-height:1.7">• GST ITC blocked for passenger vehicles (seating ≤13)<br>• Perquisite benefit for 1 car only; 2nd fully taxable<br>• IT Rules 2026 increased perquisite values from Apr 2026<br>• Works under both old and new tax regimes<br>• GST on lease (28%+cess) is a cost, not reclaimable</div></div>
+<div style="margin-top:18px"><div class="section-title">Suggested max car value policy</div>
+<div style="font-size:11px;color:var(--warn);margin-bottom:10px;padding:6px 10px;border-radius:6px" class="bg-warn">Company policy guidelines, NOT statutory. IT Act has no car value limit under FPB.</div>
+<table><thead><tr><th style="text-align:left">CTC band</th><th style="text-align:right">Suggested %</th><th style="text-align:right">Example cap</th></tr></thead><tbody>
+${[['₹2Cr-3Cr','10-15%','₹25-40L'],['₹1Cr-2Cr','12-18%','₹15-30L'],['₹50L-1Cr','15-20%','₹10-20L'],['₹25L-50L','15-25%','₹6-12L'],['₹15L-25L','15-25%','₹3-6L']].map(([a,b,c])=>`<tr><td class="c-t2">${a}</td><td style="text-align:right;color:var(--accent);font-family:monospace">${b}</td><td style="text-align:right;font-family:monospace">${c}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+}
+
+function renderLifecycle(){
+  const c=calc(),A=C('accent'),A2=C('accent2'),W=C('warn');
+  const tl=(n,t,d,b,bc,last)=>`<div class="tl-step"><div style="display:flex;flex-direction:column;align-items:center"><div class="tl-dot" style="border:1.5px solid ${bc};background:${bc}18">${n}</div>${!last?'<div class="tl-line"></div>':''}</div><div style="padding-bottom:${last?0:18}px;flex:1"><div class="tl-title">${t}</div><div class="tl-desc">${d}</div>${b?`<span class="tl-badge" style="background:${bc}15;color:${bc};border:1px solid ${bc}33">${b}</span>`:''}</div></div>`;
+  const compBars=[['Tax without lease (annual)',c.txW.total,C('danger')],['Tax with lease (annual)',c.txL.total,C('warn')],['Annual tax saved',c.tsA,A]];
+  const mx=Math.max(...compBars.map(b=>b[1]));
+  return`<div class="grid-2" style="margin-bottom:18px">
+<div class="card"><div class="section-title">Full lifecycle — ₹12L car, 4-yr lease, ₹30L CTC</div>
+${tl('0','Day 0 — Lease activation','Employee opts in. Selects car (e.g. Honda City, ₹12L). No down payment. Leasing co. buys car.','Zero upfront cost',A2)}
+${tl('1','Year 1 — Deductions begin','₹70,000/mo deducted pre-tax. Only ₹10K/mo perquisite taxed. Company pays lessor directly.','Tax saved: ₹2,24,640',A)}
+${tl('2','Year 2 — Savings compound','Same monthly structure. Car depreciates on lessor books. No out-of-pocket costs.','Cumulative: ₹4,49,280',A)}
+${tl('3','Year 3 — Steady state','If changing jobs: surrender car, buy at residual, or continue at new employer.','Cumulative: ₹6,73,920',A)}
+${tl('4','Year 4 — Lease ends','Car fully depreciated. Transfers to employee at notional value (₹1–₹25K).','Cumulative: ₹8,98,560',W)}
+${tl('✓','Post-lease — You own the car','Car in your name. Saved ~₹9L tax. 10+ years usable life remaining.','Ownership at near-zero cost',A2,true)}</div>
+<div>
+<div class="card"><div class="section-title">Annual comparison — with vs without lease</div>
+${compBars.map(([l,v,cl])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span class="c-t2">${l}</span><span style="color:${cl};font-family:monospace;font-weight:600">${FS(v)}</span></div><div style="height:20px;border-radius:4px;overflow:hidden" class="bar-h-track"><div style="height:100%;border-radius:4px;width:${v/mx*100}%;background:linear-gradient(90deg,${cl}66,${cl})"></div></div></div>`).join('')}
+<div style="margin-top:14px;padding:10px 12px;border-radius:8px;font-size:11px;color:var(--t3);line-height:1.6;background:var(--bg3)">Without lease: annual tax = <span class="c-red" style="font-weight:600">${FMT(c.txW.total)}</span>. With lease: annual tax = <span class="c-warn" style="font-weight:600">${FMT(c.txL.total)}</span>. You save <span class="c-green" style="font-weight:600">${FMT(c.tsA)}</span>/year.</div></div>
+<div class="card"><div class="section-title">Cumulative tax savings</div>
+${c.yr.map(y=>`<div class="bar-h"><div class="bar-h-header"><span class="c-t2">Year ${y.y}</span><span class="c-green mono" style="font-weight:600;font-size:12px">${FS(y.c)}</span></div><div class="bar-h-track"><div class="bar-h-fill" style="width:${y.c/c.tsT*100}%;background:linear-gradient(90deg,${A}88,${A})"></div></div></div>`).join('')}
+<div class="grid-2" style="grid-template-columns:1fr 1fr 1fr;margin-top:14px;gap:10px">
+<div class="metric"><div class="metric-label">Total car cost</div><div class="metric-val" style="font-size:16px">${FS(c.tcl)}</div><div class="metric-sub">over ${S.leaseYears} yrs</div></div>
+<div class="metric green"><div class="metric-label">Tax saved</div><div class="metric-val c-green" style="font-size:16px">${FS(c.tsT)}</div></div>
+<div class="metric"><div class="metric-label">Effective cost</div><div class="metric-val c-blue" style="font-size:16px">${FS(c.ec)}</div></div></div></div>
+<div class="card"><div class="section-title">Company perspective — no extra cost, operational gains</div>
+<div style="padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:11.5px;color:var(--t2);line-height:1.6" class="bg-warn"><span style="color:var(--warn);font-weight:600">Key fact:</span> Total CTC is unchanged. Lease rental replaces equivalent salary. Both are deductible — so there's no incremental corporate tax saving. The benefits are operational.</div>
+<div class="grid-2" style="margin-top:10px;grid-template-columns:1fr 1fr 1fr">
+<div class="metric"><div class="metric-label">Total CTC</div><div class="metric-val" style="font-size:16px">${FS(S.ctc)}/yr</div><div class="metric-sub">Same either way</div></div>
+<div class="metric"><div class="metric-label">Balance sheet</div><div class="metric-val" style="font-size:16px">Zero assets</div><div class="metric-sub">No depreciation</div></div>
+<div class="metric"><div class="metric-label">Retention</div><div class="metric-val c-blue" style="font-size:16px">${S.leaseYears} yrs lock-in</div><div class="metric-sub">Zero extra cost</div></div></div></div></div></div>
+<div class="card"><div class="section-title">Perquisite valuation — old vs IT Rules 2026</div>${perqTable()}</div>`;
+}
+
+function render(){
+  document.getElementById('tab-calculator').innerHTML=renderCalc();
+  document.getElementById('tab-howItWorks').innerHTML=renderHowItWorks();
+  document.getElementById('tab-benefits').innerHTML=renderBenefits();
+  document.getElementById('tab-lifecycle').innerHTML=renderLifecycle();
+}
+initTabs();render();
+</script>
+</body>
+</html>
